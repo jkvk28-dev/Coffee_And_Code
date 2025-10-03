@@ -34,5 +34,4 @@ The project is built entirely with **HTML, CSS, and JavaScript** — no framewor
    - 🤝 Tie → no points  
 
 ---
-
-## 📂 Project Structure  
+ 
