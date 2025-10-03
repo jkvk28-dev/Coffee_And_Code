@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neon Card Games</title>
+<style>
+body {
+  margin:0;
+  font-family:'Arial',sans-serif;
+  background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+  display:flex;
+  justify-content:center;
+  padding:30px;
+  color:#fff;
+}
+.game-container{
+  width:100%;
+  max-width:900px;
+  background:rgba(0,0,0,0.8);
+  border-radius:20px;
+  padding:20px;
+  box-shadow:0 0 20px #ff00ff,0 0 40px #00ffff;
+  text-align:center;
+}
+h1{color:#00fff0; text-shadow:0 0 10px #0ff,0 0 20px #ff00ff; margin-bottom:20px;}
+button{
+  margin:10px;
+  padding:12px 25px;
+  border:none;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  color:#fff;
+  text-shadow:0 0 5px #fff;
+  transition:0.2s;
+}
+button:hover{transform:translateY(-3px); box-shadow:0 0 20px #0ff,0 0 40px #f0f;}
+#pickCardBtn{background:linear-gradient(45deg,#ff0080,#7928ca);}
+#higherLowerBtn{background:linear-gradient(45deg,#00fff0,#00c3ff);}
+#warGameBtn{background:linear-gradient(45deg,#ff6f00,#ff8f00);}
+#backBtn{background:linear-gradient(45deg,#ff00ff,#ff2972);}
+.cards-container{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(80px,1fr));
+  gap:15px;
+  margin-top:20px;
+  max-height:300px;
+  overflow-y:auto;
+  padding:10px;
+}
+.card{
+  background:rgba(10,10,10,0.8);
+  border-radius:12px;
+  padding:10px;
+  text-align:center;
+  font-weight:bold;
+  height:120px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 0 10px #0ff,0 0 20px #f0f;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.card.red{color:#ff2972; text-shadow:0 0 5px #ff2972,0 0 10px #ff00ff;}
+.card.black{color:#00fff0; text-shadow:0 0 5px #00fff0,0 0 10px #00ffff;}
+.mini-game{
+  background: rgba(0,0,0,0.7);
+  padding:20px;
+  border-radius:15px;
+  margin-top:20px;
+  box-shadow:0 0 20px #ff00ff,0 0 40px #0ff inset;
+  display:none;
+}
+.game-buttons{display:flex;gap:15px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+.current-card{font-size:2em;margin:15px 0;font-weight:bold;text-shadow:0 0 10px #0ff;}
+.game-result{font-size:1.2em;margin-top:10px;color:#ff2972;font-weight:bold;text-shadow:0 0 10px #ff2972;}
+#timer{font-size:1.2em; margin-top:10px; color:#0ff; text-shadow:0 0 10px #0ff;}
+.scoreboard{margin-top:20px; display:flex; justify-content:space-around; flex-wrap:wrap;}
+.stat-box{background:rgba(255,255,255,0.1); padding:10px; border-radius:10px; min-width:120px; text-align:center;}
+.stat-number{font-size:1.5em; font-weight:bold; color:#00fff0;}
+</style>
+</head>
+<body>
+<div class="game-container">
+<h1>🎴 Neon Card Games</h1>
+
+<!-- Main Menu Buttons -->
+<div id="menuButtons">
+  <button id="pickCardBtn">Pick a Card</button>
+  <button id="higherLowerBtn">Higher/Lower</button>
+  <button id="warGameBtn">Play War</button>
+</div>
+
+<!-- Scoreboard -->
+<div class="scoreboard">
+  <div class="stat-box">
+    <div>Higher/Lower Score</div>
+    <div class="stat-number" id="hlScore">0</div>
+  </div>
+  <div class="stat-box">
+    <div>War Score</div>
+    <div class="stat-number" id="warScore">0</div>
+  </div>
+  <div class="stat-box">
+    <div>Cards Picked</div>
+    <div class="stat-number" id="cardsPicked">0</div>
+  </div>
+  <div class="stat-box">
+    <div>Remaining Cards</div>
+    <div class="stat-number" id="remainingCards">52</div>
+  </div>
+</div>
+
+<!-- Pick a Card Section -->
+<div id="pickCardSection" class="mini-game">
+  <h2>Pick a Card</h2>
+  <button id="pickCard">Draw Card</button>
+  <div id="cardsContainer" class="cards-container"></div>
+  <button id="backPick" style="margin-top:15px;">Back to Menu</button>
+</div>
+
+<!-- Higher/Lower Section -->
+<div id="higherLowerSection" class="mini-game">
+  <h2>Higher or Lower?</h2>
+  <div class="current-card" id="currentCardDisplay">-</div>
+  <div class="game-buttons">
+    <button id="guessHigher" style="background:#0ff; color:#000;">Higher</button>
+    <button id="guessLower" style="background:#ff2972;">Lower</button>
+  </div>
+  <div class="game-result" id="hlResult"></div>
+  <div id="timer">Time left: 30s</div>
+  <button id="backHL" style="margin-top:15px;">Back to Menu</button>
+</div>
+
+<!-- War Game Section -->
+<div id="warSection" class="mini-game">
+  <h2>War Game</h2>
+  <div class="current-card" id="playerCardDisplay">Your Card: -</div>
+  <div class="current-card" id="computerCardDisplay">Computer Card: -</div>
+  <div class="game-buttons">
+    <button id="drawWarCard">Draw Card</button>
+  </div>
+  <div class="game-result" id="warResult"></div>
+  <button id="backWar" style="margin-top:15px;">Back to Menu</button>
+</div>
+
+<audio id="clickSound" src="click.mp3"></audio>
+<audio id="cardSound" src="cardflip.mp3"></audio>
+
+<script>
+// Sound
+const clickSound=document.getElementById('clickSound');
+const cardSound=document.getElementById('cardSound');
+
+// Sections
+const menu=document.getElementById('menuButtons');
+const pickSection=document.getElementById('pickCardSection');
+const hlSection=document.getElementById('higherLowerSection');
+const warSection=document.getElementById('warSection');
+
+// Menu Buttons
+document.getElementById('pickCardBtn').onclick=()=>{clickSound.play(); toggleSection(pickSection);}
+document.getElementById('higherLowerBtn').onclick=()=>{clickSound.play(); toggleSection(hlSection); startHL();}
+document.getElementById('warGameBtn').onclick=()=>{clickSound.play(); toggleSection(warSection);}
+
+// Back Buttons
+document.getElementById('backPick').onclick=()=>{clickSound.play(); toggleSection(menu);}
+document.getElementById('backHL').onclick=()=>{clickSound.play(); toggleSection(menu); clearInterval(timerInterval);}
+document.getElementById('backWar').onclick=()=>{clickSound.play(); toggleSection(menu);}
+
+function toggleSection(section){
+  menu.style.display=(section===menu)?'flex':'none';
+  pickSection.style.display='none';
+  hlSection.style.display='none';
+  warSection.style.display='none';
+  if(section!==menu) section.style.display='block';
+}
+
+// Deck
+const suits=['♥','♦','♣','♠'];
+const ranks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+let deck=[],pickedCards=[],hlGameScore=0,playerScore=0,compScore=0;
+function resetDeck(){deck=[];suits.forEach(suit=>ranks.forEach((rank,i)=>deck.push({rank,suit,value:i}))); pickedCards=[];}
+resetDeck();
+
+// Update Scoreboard
+const hlScoreDisplay=document.getElementById('hlScore');
+const warScoreDisplay=document.getElementById('warScore');
+const cardsPickedDisplay=document.getElementById('cardsPicked');
+const remainingDisplay=document.getElementById('remainingCards');
+function updateStats(){
+  hlScoreDisplay.textContent=hlGameScore;
+  warScoreDisplay.textContent=`You ${playerScore} - Comp ${compScore}`;
+  cardsPickedDisplay.textContent=pickedCards.length;
+  remainingDisplay.textContent=deck.length;
+}
+
+// ----------------- Pick a Card Logic -----------------
+const cardsContainer=document.getElementById('cardsContainer');
+document.getElementById('pickCard').onclick=()=>{
+  if(deck.length===0){alert('Deck empty!'); return;}
+  const idx=Math.floor(Math.random()*deck.length);
+  const card=deck.splice(idx,1)[0];
+  pickedCards.push(card);
+  const cardEl=document.createElement('div');
+  cardEl.className=`card ${(card.suit==='♥'||card.suit==='♦')?'red':'black'}`;
+  cardEl.innerHTML=`<div>${card.rank}</div><div>${card.suit}</div>`;
+  cardsContainer.appendChild(cardEl);
+  cardsContainer.scrollTop=cardsContainer.scrollHeight;
+  cardSound.play();
+  updateStats();
+}
+
+// ----------------- Higher/Lower Logic -----------------
+let currentHLCard=null;
+const currentCardDisplay=document.getElementById('currentCardDisplay');
+const hlResult=document.getElementById('hlResult');
+const timerDisplay=document.getElementById('timer');
+let timeLeft=30, timerInterval=null;
+
+function startHL(){
+  if(deck.length<2){alert('Not enough cards!'); return;}
+  const idx=Math.floor(Math.random()*deck.length);
+  currentHLCard=deck[idx];
+  currentCardDisplay.textContent=`${currentHLCard.rank} ${currentHLCard.suit}`;
+  hlResult.textContent='';
+  resetTimer();
+}
+
+function resetTimer(){
+  clearInterval(timerInterval);
+  timeLeft=30;
+  timerDisplay.textContent=`Time left: ${timeLeft}s`;
+  timerInterval=setInterval(()=>{
+    timeLeft--;
+    timerDisplay.textContent=`Time left: ${timeLeft}s`;
+    if(timeLeft<=0){clearInterval(timerInterval); alert('Time up!'); toggleSection(menu);}
+  },1000);
+}
+
+function makeHLGuess(guess){
+  if(deck.length===0) return;
+  const idx=Math.floor(Math.random()*deck.length);
+  const nextCard=deck.splice(idx,1)[0];
+  pickedCards.push(nextCard);
+  let result='';
+  if(nextCard.value===currentHLCard.value) result='Tie! No points.';
+  else if((guess==='higher' && nextCard.value>currentHLCard.value)||(guess==='lower' && nextCard.value<currentHLCard.value)){hlGameScore+=10; result='Correct +10';}
+  else{hlGameScore=Math.max(0,hlGameScore-5); result='Wrong -5';}
+  result+=` Next: ${nextCard.rank} ${nextCard.suit}`;
+  hlResult.textContent=result;
+  currentHLCard=nextCard;
+  currentCardDisplay.textContent=`${nextCard.rank} ${nextCard.suit}`;
+  cardSound.play();
+  resetTimer();
+  updateStats();
+}
+document.getElementById('guessHigher').onclick=()=>makeHLGuess('higher');
+document.getElementById('guessLower').onclick=()=>makeHLGuess('lower');
+
+// ----------------- War Game Logic -----------------
+const playerDisplay=document.getElementById('playerCardDisplay');
+const compDisplay=document.getElementById('computerCardDisplay');
+const warResult=document.getElementById('warResult');
+document.getElementById('drawWarCard').onclick=()=>{
+  if(deck.length<2){alert('Not enough cards!'); return;}
+  const pIdx=Math.floor(Math.random()*deck.length);
+  const cIdx=Math.floor(Math.random()*deck.length);
+  const playerCard=deck.splice(pIdx,1)[0];
+  const compCard=deck.splice(cIdx,1)[0];
+  pickedCards.push(playerCard,compCard);
+  playerDisplay.textContent=`Your Card: ${playerCard.rank} ${playerCard.suit}`;
+  compDisplay.textContent=`Computer Card: ${compCard.rank} ${compCard.suit}`;
+  cardSound.play();
+  if(playerCard.value>compCard.value){playerScore++; warResult.textContent=`You win this round! Score: You ${playerScore} - Comp ${compScore}`;}
+  else if(playerCard.value<compCard.value){compScore++; warResult.textContent=`Computer wins this round! Score: You ${playerScore} - Comp ${compScore}`;}
+  else{warResult.textContent=`Tie round! Score: You ${playerScore} - Comp ${compScore}`;}
+  updateStats();
+}
+</script>
+</body>
+</html>
